@@ -1,0 +1,32 @@
+intent,user,bot
+tanya_harga,Berapa harga susu kedelai botol?,"Harga susu kedelai botol ukuran 250ml adalah Rp5.000, sedangkan ukuran 500ml adalah Rp8.000."
+tanya_varian,Ada rasa apa aja?,"Kami punya beberapa varian rasa: original, coklat, vanila, stroberi, dan pandan."
+tanya_ukuran,Ukuran kemasannya apa aja?,"Kami menyediakan susu kedelai dalam kemasan plastik 200ml, botol 250ml, dan botol 500ml."
+tanya_pengiriman,Pengirimannya lewat apa ya?,Kami melayani pengiriman melalui kurir lokal (GoSend/GrabExpress) atau bisa juga ambil langsung di outlet kami.
+tanya_waktu_pengiriman,Kapan pesanan saya sampai?,"Waktu pengiriman tergantung lokasi. Untuk area dalam kota bisa sampai dalam 1 sampai 2 jam, luar kota 1 sampai 2 hari."
+tanya_ketersediaan,Susu rasa coklat masih ada gak?,"Iya, susu kedelai rasa coklat masih tersedia. Mau pesan berapa banyak?"
+cara_pesan,Kalau mau pesan gimana caranya?,Kamu bisa pesan lewat WhatsApp kami atau langsung isi form di website. Mau saya bantu link-nya?
+ucapan_terima_kasih,Makasih ya,"Sama-sama! Kalau butuh bantuan lainnya, tinggal chat aja"
+promosi,Lagi ada promo gak?,Saat ini kami sedang promo beli 5 botol gratis 1! Berlaku sampai akhir bulan ini.
+jam_operasional,Buka jam berapa?,Kami buka setiap hari dari jam 08.00 sampai 20.00 WIB.
+tanya_harga,Berapa harga susu kedelai botol 250ml?,Harga susu kedelai botol 250ml adalah Rp5.000.
+tanya_harga,Ada kemasan plastik yang lebih murah gak?,Kami punya kemasan plastik 200ml seharga Rp2.000.
+tanya_harga,Botol 500ml harganya berapa?,Harga susu kedelai botol 500ml adalah Rp8.000.
+tanya_varian,Ada rasa apa aja?,"Varian rasa kami antara lain: original, coklat, vanila, stroberi, dan pandan."
+tanya_ukuran,Ukuran botolnya ada apa aja?,"Kami menyediakan susu kedelai dalam kemasan plastik 200ml, botol 250ml, dan botol 500ml."
+cara_pesan,Cara pesan susunya gimana?,Kamu bisa pesan lewat WhatsApp kami atau isi form di website. Mau saya kirimkan link-nya?
+tanya_pengiriman,Kirimnya lewat apa ya?,Pengiriman tersedia via GoSend/GrabExpress untuk dalam kota atau kurir reguler untuk luar kota.
+tanya_waktu_pengiriman,Berapa lama pengirimannya?,"Untuk area dalam kota sekitar 1 sampai 2 jam, luar kota bisa 1 sampai 2 hari tergantung kurir."
+komplain_produk,Susunya basi waktu datang.,Mohon maaf! Bisa kirimkan foto dan nomor pesanan agar kami bisa proses penggantian.
+komplain_kemasan,Botolnya bocor pas sampai.,Maaf atas kejadian ini. Kami akan kirimkan pengganti. Bisa kirimkan bukti foto produknya?
+komplain_salah_rasa,Saya pesan rasa coklat tapi yang datang vanila.,Maaf atas kesalahan pengiriman. Kami akan kirimkan yang sesuai tanpa biaya tambahan.
+komplain_pelayanan,Saya udah chat tapi gak dibalas.,Mohon maaf atas keterlambatan respon. Kami akan segera bantu.
+tanya_ketersediaan,Rasa stroberi masih ada gak?,"Iya, rasa stroberi masih tersedia. Mau order berapa banyak?"
+promosi,Ada promo gak?,Lagi promo beli 5 gratis 1 sampai akhir bulan ini! Jangan sampai ketinggalan ya.
+jam_operasional,Toko buka jam berapa?,Kami buka setiap hari dari jam 08.00 sampai 20.00 WIB.
+ucapan_terima_kasih,Makasih ya,Sama-sama! Senang bisa membantu
+sapaan_awal,Halo ini bener toko susu kedelai?,"Hai! Betul, ini layanan susu kedelai kami. Mau pesan atau tanya-tanya dulu?"
+tanya_ukuran,Susu kedelainya ada ukuran apa saja?,"Tersedia ukuran plastik 200ml, botol 250ml, dan botol 500ml."
+cara_pesan,Gimana cara order susu kedelai?,Bisa pesan lewat WhatsApp atau form di website kami.
+jam_operasional,Tutup jam berapa?,Kami tutup pukul 20.00 WIB setiap harinya.
+tanya_pengiriman,Pengiriman luar kota bisa gak?,"Bisa, kami kirim via JNE, J&T, atau SiCepat."

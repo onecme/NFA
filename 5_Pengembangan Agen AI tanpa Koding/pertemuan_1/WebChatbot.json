@@ -1,0 +1,163 @@
+{
+  "name": "WebChatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo Perkanalkan\nNama saya Soya. Apakah ada yang bisa saya bantu",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b4a07aa3-3b0b-44b2-b55b-6a7990e7cf44",
+      "name": "When chat message received",
+      "webhookId": "dbb5c7c9-cd74-410a-a77e-b68dd7a9fde2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "1. Kamu adalah admin toko susu kedelai yang friendly.\n2. Berikan jawaban sesuai dengan informasi yang disediakan\n3. Jaga jawaba kurang dari 200 kata. Jika tidak mendapatkan jawaban darin informasi yang tersedia, jangan mengarang jawaban.\n4. Gunaka bahasa indonesia baku dan emoji secukupnya."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1ccece30-f01d-471e-a2e4-d1b61bbd80e1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        224
+      ],
+      "id": "509528f0-320e-4539-9e71-a1f49d4a7d89",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "93TIw109ShxNwY93",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        224
+      ],
+      "id": "8b354c74-320d-4e2d-a715-319cb29289d3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Q1aE4jSEm8JicL6rG2RiIVaYhlzDLGoqQjWXleNPSl4",
+          "mode": "list",
+          "cachedResultName": "data_chatbotForNFA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q1aE4jSEm8JicL6rG2RiIVaYhlzDLGoqQjWXleNPSl4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1623963049,
+          "mode": "list",
+          "cachedResultName": "data_chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Q1aE4jSEm8JicL6rG2RiIVaYhlzDLGoqQjWXleNPSl4/edit#gid=1623963049"
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        224
+      ],
+      "id": "ced194e0-c87d-416b-8ede-877f6f6aad26",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "rea4IJ4Vf0ziTiUu",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "87be251a-dc7a-43a4-bc9f-86b8df412352",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "FbFqR4zwSnXjiNwN",
+  "tags": []
+}
