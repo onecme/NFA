@@ -1,0 +1,201 @@
+{
+  "name": "chatbotHargaSoylife",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fed16877-4d70-4c03-92b5-5fefdc9bc51b",
+      "name": "Telegram Trigger",
+      "webhookId": "9e68bac5-2c9c-4d98-aee0-dd7ef968db88",
+      "credentials": {
+        "telegramApi": {
+          "id": "Z0prcBYBfWofa8yZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "Kamu adalah asisten virtual toko susu kedelai \"Soylife\" yang ramah dan helpful.\n\n## Identitas\n- Nama kamu adalah Soya\n- Kamu hanya menjawab pertanyaan seputar produk, harga, dan pemesanan\n- Jika ditanya di luar topik tersebut, tolak dengan sopan"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d4f429e1-89e9-4792-a21e-22e9f0621c38",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        192,
+        224
+      ],
+      "id": "b9262b60-bf75-483a-927e-c56c7a979234",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FlU2bX59SasAVRXl",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        224
+      ],
+      "id": "6cd97cc3-fe4d-4bee-8464-e42bea5a25b3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Gunakan tool ini untuk mencari informasi harga susu kedelai berdasarkan rasa dan ukuran kemasan",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "RbZStslclTqXDKNE",
+          "mode": "list",
+          "cachedResultName": "HargaSoylife",
+          "cachedResultUrl": "/projects/MGoYYZLrq09GqvSo/datatables/RbZStslclTqXDKNE"
+        },
+        "matchType": "allConditions",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        256
+      ],
+      "id": "2d114563-f5a4-46c7-a4e1-9bba6b83d74b",
+      "name": "Get row(s) in Data table"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        55.5
+      ],
+      "id": "3fee5db1-c2e4-42bd-a9ee-4b3324434d80",
+      "name": "Send a text message",
+      "webhookId": "d31fed14-3ab3-493a-85c9-e6a6878b076e",
+      "credentials": {
+        "telegramApi": {
+          "id": "Z0prcBYBfWofa8yZ",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in Data table": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "rea4IJ4Vf0ziTiUu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "e49926cf-a7d8-4e41-a366-106d2918934b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "AkzNqSUvWEDQlKxl",
+  "tags": []
+}
