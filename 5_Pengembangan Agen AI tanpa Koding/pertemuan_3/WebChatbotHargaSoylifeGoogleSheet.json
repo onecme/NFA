@@ -1,0 +1,163 @@
+{
+  "name": "WebChatbotHargaSoylifeGoogleSheet",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah asisten virtual toko susu kedelai \"Soylife\" yang ramah dan helpful.\n\n## Identitas\n- Nama kamu adalah Soya\n- Kamu hanya menjawab pertanyaan seputar produk, harga, dan pemesanan\n- Jika ditanya di luar topik tersebut, tolak dengan sopan"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "0ce6b822-cb83-452d-93ff-b13185bbec65",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        496,
+        176
+      ],
+      "id": "07d279de-1878-45ec-a6fe-aa635d472b5d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "93TIw109ShxNwY93",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        192
+      ],
+      "id": "ba3a52d5-4cba-45e1-ba90-23bef43a213f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo Perkanalkan\nNama saya Soya. Apakah ada yang bisa saya bantu",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        272,
+        -16
+      ],
+      "id": "afd0fbfe-c3a8-4d33-b0c5-f81684893dff",
+      "name": "When chat message received",
+      "webhookId": "2fcb526d-f002-4f8d-9ae4-a0de272f86b6"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mdhqdjc58eLNYEMnn8ORW_8YYhwQ-wRGStvQpUBe0Z8",
+          "mode": "list",
+          "cachedResultName": "DaftarHargaSoylife",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mdhqdjc58eLNYEMnn8ORW_8YYhwQ-wRGStvQpUBe0Z8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mdhqdjc58eLNYEMnn8ORW_8YYhwQ-wRGStvQpUBe0Z8/edit#gid=0"
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        224
+      ],
+      "id": "9c4653c6-d9a0-48d7-98c2-bd0d4b84d005",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "rea4IJ4Vf0ziTiUu",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "27261641-f92b-49d0-8f5a-fb342c9ddce3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "CAzBVvCyJEEqgLis",
+  "tags": []
+}
