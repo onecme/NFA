@@ -1,0 +1,340 @@
+{
+  "name": "agentForTextImage",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Generate Gambar Konten Otomatis",
+        "formDescription": "Isi  informasi dibawah ini untuk memulai generate gambar",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Prompt",
+              "fieldName": "Prompt"
+            },
+            {
+              "fieldLabel": "Task_type",
+              "fieldName": "Task_type",
+              "placeholder": "mj_txtimg"
+            },
+            {
+              "fieldLabel": "api_key",
+              "fieldName": "api_key"
+            },
+            {
+              "fieldLabel": "Img_url",
+              "fieldName": "Img_url"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e4ffd267-ce09-4b69-bbfa-7532ee511437",
+      "name": "On form submission",
+      "webhookId": "382f2df6-be5b-4b53-bf26-2192489f11a3"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "796116a2-640c-441c-92e6-47e6a5631812",
+      "name": "Wait",
+      "webhookId": "de62750e-21ff-4457-a6e3-9bc42c999b69"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5cfa591e-417a-44b6-881b-ac68f779d3ac",
+              "leftValue": "success",
+              "rightValue": "={{ $json.data.state }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "5213c5f5-2131-45d6-85bd-a64b44c00893",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = JSON.parse($json.data.resultJson);\n\nreturn [{\n  img1: result.resultUrls[0] || null,\n  img2: result.resultUrls[1] || null,\n  img3: result.resultUrls[2] || null,\n  img4: result.resultUrls[3] || null\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "a1ceb57b-16f9-4090-ba10-1fd3ba89fc7c",
+      "name": "Format Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const urls = [\n  $json.img1,\n  $json.img2,\n  $json.img3,\n  $json.img4\n].filter(Boolean);\n\n// jadikan 1 URL = 1 item\nreturn urls.map((url, index) => ({\n  json: {\n    url,\n    index: index + 1\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -16
+      ],
+      "id": "dc399b50-ef7b-4999-ab07-c0c750666cd1",
+      "name": "Loop Image"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1392,
+        -16
+      ],
+      "id": "5fe45d11-6231-42ff-bf69-6b3fc3968e98",
+      "name": "Download Gambar"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "1536170668",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        -16
+      ],
+      "id": "50a6934e-35fb-49eb-bcb9-7258ac3ebb9c",
+      "name": "Kirim Hasil Generate",
+      "webhookId": "61da6d15-5482-4267-b0a2-f3fa4224c233",
+      "credentials": {
+        "telegramApi": {
+          "id": "7NYaciapqc3yUYlk",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('On form submission').item.json.api_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "2c2fe483-0829-4750-b9b5-938f465b4b18",
+      "name": "Get HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.api_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"grok-imagine/text-to-image\",\n  \"input\": {\n    \"prompt\": \"{{ $json.Prompt}}\",\n    \"aspect_ratio\": \"3:2\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5664e0eb-b22b-43f8-afe6-5069c310d6e4",
+      "name": "Post HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Post HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Format Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Image": {
+      "main": [
+        [
+          {
+            "node": "Download Gambar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Gambar": {
+      "main": [
+        [
+          {
+            "node": "Kirim Hasil Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "rea4IJ4Vf0ziTiUu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "d74ff027-63c7-426b-a1e3-8547f14839c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "zzaUI7nBDC14jDxH",
+  "tags": []
+}
