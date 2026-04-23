@@ -1,0 +1,379 @@
+{
+  "name": "AnalisisSentimenHarian$BTC_$ETH)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a3f7256e-9655-4edf-9bfa-4e32e1a4bb59",
+      "name": "Setiap 15 Menit"
+    },
+    {
+      "parameters": {
+        "model": "xiaomi/mimo-v2-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        416,
+        192
+      ],
+      "id": "66ef12eb-16b1-49f8-9549-c1af9f6d5466",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "rZhrWUaCbP6ZN40j",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU",
+          "mode": "list",
+          "cachedResultName": "$BTC_$ETH_SentimenMediaSosial",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DataMentah",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        0
+      ],
+      "id": "fbc40523-9c31-44b3-950a-db1039e14967",
+      "name": "Penyimpanan Hasil",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the sentiment of the following tweet. Respond ONLY with ONE word: 'Positive', 'Negative', or 'Neutral'.\n\nTweet:\n{{ $json.text }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "31dfc0a1-7799-4ef0-a311-9fdd8674fae4",
+      "name": "Analisis Sentimen"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        352
+      ],
+      "id": "5235bc7b-ed7b-440f-b76d-603c20bdefe4",
+      "name": "Setiap Jam 7 Pagi"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU",
+          "mode": "list",
+          "cachedResultName": "$BTC_$ETH_SentimenMediaSosial",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DataMentah",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ORrn3wbYVVWXQWxHa9sz8vRJF_jizSYXExKOpSFx3fU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        352
+      ],
+      "id": "b0fb7df6-23e7-4106-900a-07b68c24b604",
+      "name": "Baca Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ambil semua baris dari node \"Google Sheets\"\n// **Pastikan nama node Anda adalah \"Google Sheets\"**\nconst items = $items(\"Baca Data\");\n\nlet positive = 0;\nlet negative = 0;\nlet neutral = 0;\nlet total = 0;\n\n// Loop melalui setiap baris\nfor (const item of items) {\n  // Ambil nilai dari kolom \"Sentiment\"\n  const sentiment = item.json.Sentiment;\n  \n  if (sentiment === 'Positive') {\n    positive++;\n  } else if (sentiment === 'Negative') {\n    negative++;\n  } else if (sentiment === 'Neutral') {\n    neutral++;\n  }\n}\n\ntotal = items.length;\n\n// Kembalikan hasil perhitungan\nreturn {\n  total_tweets: total,\n  sentimen_positif: positive,\n  sentimen_negatif: negative,\n  sentimen_netral: neutral\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        352
+      ],
+      "id": "f34b0d37-20ae-4a92-bcac-4e7991c7fbdc",
+      "name": "Analisis Data"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Anda adalah seorang analis sentimen media sosial.\nTuliskan kesimpulan singkat (dalam bahasa Indonesia) untuk laporan Telegram, berdasarkan data berikut:\n\n- Total Tweet Dianalisis: {{ $json.total_tweets }}\n- Sentimen Positif: {{ $json.sentimen_positif }}\n- Sentimen Negatif: {{ $json.sentimen_negatif }}\n- Sentimen Netral: {{ $json.sentimen_netral }}\n\nBerikan ringkasan singkat tentang apa arti angka-angka ini (misalnya, \"Sentimen hari ini cenderung positif,\" \"Ada banyak keraguan di pasar,\" dll.).\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        480,
+        352
+      ],
+      "id": "d292fe60-3473-40c3-9223-07e75765defa",
+      "name": "Membuat Kesimpulan"
+    },
+    {
+      "parameters": {
+        "model": "xiaomi/mimo-v2-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        480,
+        560
+      ],
+      "id": "47d5455e-b9d3-45eb-acea-61e8ec306db5",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "rZhrWUaCbP6ZN40j",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1536170668",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        352
+      ],
+      "id": "27d831a4-ad05-4b43-abab-b43ce5a5c45a",
+      "name": "Kirim Laporan",
+      "webhookId": "701dbfda-64f1-4e74-99d1-bdd6bd59e0a6",
+      "credentials": {
+        "telegramApi": {
+          "id": "4K5egzeh0U0aufKV",
+          "name": "Elyas_$BTC_$ETH_SentimenMediaSosial_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bc205a4-2f02-494a-8575-84b0783eaec7",
+              "name": "text",
+              "value": "{\n  \"BTC\": {\n    \"total\": 97,\n    \"bullish\": 33,\n    \"bearish\": 37,\n    \"neutral\": 27,\n    \"avg_compound\": -0.0378,\n    \"signal\": \"NEUTRAL\",\n    \"scraped_at\": \"2026-04-22T13:29:22.198423\"\n  },\n  \"ETH\": {\n    \"total\": 68,\n    \"bullish\": 31,\n    \"bearish\": 28,\n    \"neutral\": 9,\n    \"avg_compound\": -0.0244,\n    \"signal\": \"NEUTRAL\",\n    \"scraped_at\": \"2026-04-22T13:29:22.198932\"\n  }\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "00914d1f-a3f1-44fa-9765-1eeb33b284ef",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Setiap 15 Menit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analisis Sentimen",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisis Sentimen": {
+      "main": [
+        [
+          {
+            "node": "Penyimpanan Hasil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setiap Jam 7 Pagi": {
+      "main": [
+        [
+          {
+            "node": "Baca Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baca Data": {
+      "main": [
+        [
+          {
+            "node": "Analisis Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisis Data": {
+      "main": [
+        [
+          {
+            "node": "Membuat Kesimpulan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Membuat Kesimpulan",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Membuat Kesimpulan": {
+      "main": [
+        [
+          {
+            "node": "Kirim Laporan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Analisis Sentimen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "rea4IJ4Vf0ziTiUu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "b712b3d7-35b8-4427-aafc-701347a71450",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "v2m4rbaMl3bNh14R",
+  "tags": []
+}
