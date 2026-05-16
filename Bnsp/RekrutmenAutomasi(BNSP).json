@@ -1,0 +1,886 @@
+{
+  "name": "RekrutmenAutomasi(BNSP)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Penilaian CV\n",
+        "height": 544,
+        "width": 1968,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "d15ed683-3dc4-4614-851b-d71a261dfebd",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Peran: Perusahaan membutuhkan seorang yang paham terkait bidang Artificial Intelligence seperti Data Sciences, Machine Learning, MLOps atau melakukan automate  dengan AI.  Anda adalah Senior Technical Recruiter yang sangat teliti dan objektif. Tugas Anda adalah mengevaluasi teks CV kandidat di bawah ini untuk sesuai kebutuhan perusahaan\nKonteks CV Kandidat:\n\"\"\"\n{{ $json.text }}\n\"\"\"\nInstruksi Penilaian:\n1. Analisis pengalaman kerja, keahlian teknis (Hard Skills), dan latar belakang pendidikan.\n2. Identifikasi apakah kandidat memiliki pengalaman dengan tools yang sesuai dengan kebutuhan\n3. Berikan skor profesional dari 0-100.\n   - Skor < 50: Tidak relevan/Pemula.\n   - Skor 50-75: Menengah/Potensial.\n   - Skor > 75: Sangat Cocok/Senior.\n\nFormat Output (WAJIB JSON):\nJangan berikan basa-basi atau teks pembuka. HANYA berikan output JSON valid dengan struktur berikut:\n{\n  \"candidate_name\": \"Nama lengkap kandidat (jika ada)\",\n  \"years_of_experience\": \"Estimasi total tahun pengalaman (angka)\",\n  \"top_skills\": [\"Skill 1\", \"Skill 2\", \"Skill 3\", \"Skill 4\", \"Skill 5\"],\n  \"summary\": \"Ringkasan profil kandidat dalam 1 paragraf pendek (maksimal 30 kata) dalam Bahasa Indonesia.\",\n  \"strengths\": \"Poin kuat kandidat\",\n  \"weaknesses\": \"Kekurangan/hal yang perlu diklarifikasi\",\n  \"score\": 0,\n  \"hiring_recommendation\": \"YES / NO / MAYBE\"\n}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        128,
+        64
+      ],
+      "id": "bfc9a465-5057-42a9-b996-e30c723d48fd",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        128,
+        240
+      ],
+      "id": "d5f9cbdb-ed0a-4e4e-9c50-9353ec270121",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "ap8yB7QyRdW9ec0y",
+          "name": "nfa-n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fe27c891-22ee-4d53-9597-a4e781f26565",
+              "leftValue": "YES",
+              "rightValue": "={{ $('Membersikah Noise Pada Output').item.json.ai_rec }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "e7caf132-16fc-4346-924a-94828ef8909e",
+              "leftValue": "MAYBE",
+              "rightValue": "={{ $('Membersikah Noise Pada Output').item.json.ai_rec }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        64
+      ],
+      "id": "6c401117-e093-4868-b096-ed9fe800778c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Mohon Maaf Lamaran Kamu Telah Ditolak",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">\n\n  <p>Halo, <strong>{{ $json.Nama }}</strong></p>\n\n  <p>\n    Lamaran Kamu untuk tanggal <strong>{{ $json.Timestamp }}</strong> telah \n    <span style=\"color: #f44336; font-weight: bold;\">DITOLAK</span>.\n  </p>\n\n  <p>\n    Karena tidak memenuhi kriteria yang dibutuhkan oleh perusahaan, untuk evaluasi dari kami \n    Kamu bisa memperbaiki CV agar sesuai dengan kebutuhan perusahaan yang dilamar.\n  </p>\n\n  <p>Walaupun ditolak, Kamu tetap semangat ya.</p>\n\n  <br>\n\n  <p>Salam,<br>\n  <strong>HR Plusone</strong></p>\n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        240
+      ],
+      "id": "6617c271-25fc-4e86-89fe-e89da537d83e",
+      "name": "Kandidat Gagal",
+      "webhookId": "7a406cc0-3b9e-4cfc-b975-5237c02d561f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vEg9msV07F9U5vQE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1wbS5nQhauEi17bjuHCizo_lQU9zfKp5Ouw2HHShfEIOJDITuL_mf79C2YThr3q5Y1ua6O85O",
+          "mode": "list",
+          "cachedResultName": "Kirim CV (PDF) (File responses)",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1wbS5nQhauEi17bjuHCizo_lQU9zfKp5Ouw2HHShfEIOJDITuL_mf79C2YThr3q5Y1ua6O85O"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        64
+      ],
+      "id": "1951a24d-900d-4442-b99a-b3500922cfe4",
+      "name": "Mengambil CV",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TtMZyWxXYY6ld6KR",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.webViewLink }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -320,
+        64
+      ],
+      "id": "aecc0231-9f88-4b96-917f-54ba7e82212e",
+      "name": "Download CV",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TtMZyWxXYY6ld6KR",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        64
+      ],
+      "id": "a59e4007-bb60-419c-9da6-fadefc324ae4",
+      "name": "Extract from CV PDF"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (let item of items) {\n  const aiResponseText = item.json.text; // Output teks dari LLM\n  \n  try {\n    // 1. Bersihkan formatting jika AI memberikan markdown ```json ... ```\n    const cleanJson = aiResponseText.replace(/```json|```/g, '').trim();\n    \n    // 2. Parse string menjadi Objek\n    const parsedData = JSON.parse(cleanJson);\n    \n    // 3. Masukkan ke item.json agar bisa dipanggil node selanjutnya\n    item.json.ai_name = parsedData.candidate_name;\n    item.json.ai_exp = parsedData.years_of_experience;\n    item.json.ai_skills = parsedData.top_skills.join(\", \"); // Array jadi string\n    item.json.ai_summary = parsedData.summary;\n    item.json.ai_score = parsedData.score;\n    item.json.ai_rec = parsedData.hiring_recommendation;\n    \n  } catch (error) {\n    // Fallback jika AI gagal generate JSON valid\n    item.json.error = \"Gagal parsing JSON dari AI\";\n    item.json.raw_output = aiResponseText;\n  }\n}\n\nreturn items;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        64
+      ],
+      "id": "e140e944-cf72-40f1-9dc3-bebdacddb9e9",
+      "name": "Membersikah Noise Pada Output"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY",
+          "mode": "list",
+          "cachedResultName": "RekrutmenKaryawanPlusone (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 575642654,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit#gid=575642654"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        48
+      ],
+      "id": "d72dd98f-6f6f-4e6a-b98c-d41280caa2eb",
+      "name": "Data Kandidat",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY",
+          "mode": "list",
+          "cachedResultName": "RekrutmenKaryawanPlusone (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 575642654,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit#gid=575642654"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        240
+      ],
+      "id": "3624a413-5f51-49b4-beec-79999eed2730",
+      "name": "Data Kandidat1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Membuat Pertanyaan Personal Untuk Kandidat \n",
+        "height": 672,
+        "width": 1648,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "776b2b12-b996-4ee3-8c09-0c262b84852c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "path": "approval-handler-recruitment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        656
+      ],
+      "id": "33c988e4-1734-4577-a7f3-e8c7b7d32871",
+      "name": "Webhook",
+      "webhookId": "85132a12-3d4a-4f87-9823-6c1fb2681597"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY",
+          "mode": "list",
+          "cachedResultName": "RekrutmenKaryawanPlusone (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 575642654,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit#gid=575642654"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        1040
+      ],
+      "id": "35badfc6-f460-4d73-a180-1d08e9079b00",
+      "name": "Data Kandidat2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2f4427e3-8822-412e-9267-8c6aa298cd40",
+              "leftValue": "={{ $json.query.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        656
+      ],
+      "id": "0c59db97-803e-467f-8a66-11b0e7dddd21",
+      "name": "If Hasil Persetujuan HR"
+    },
+    {
+      "parameters": {
+        "sendTo": "elya23277ti@student.nurulfikri.ac.id",
+        "subject": "Keputusan Interview Kandidat",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">\n\n<p>Halo HR,</p>\n\n<p>Ada pengajuan baru interview kandidat yang membutuhkan persetujuan Anda:</p>\n\n<ul>\n  <li><strong>Email:</strong> {{ $json.Email }}</li>\n  <li><strong>Nama:</strong> {{ $json.Nama }}</li>\n  <li><strong>Usia:</strong> {{ $json.Usia }}</li>\n  <li><strong>Alasan:</strong><br>\n    Memiliki pengalaman {{ $('If').item.json.ai_exp }} tahun.\n    Skills yang dipunyai terdiri dari {{ $('If').item.json.ai_skills }}.\n    Ringkasan dalam CVnya {{ $('If').item.json.ai_summary }}.\n    Score yang didapat {{ $('If').item.json.ai_score }}\n    dengan hasil rekomendasi {{ $('If').item.json.ai_rec }}.\n  </li>\n  <li><strong>Link CV:</strong> {{ $('Download CV').item.json.webViewLink }}</li>\n</ul>\n\n<p>Silakan klik keputusan Anda:</p>\n\n<p>\n  <a href=\"https://n8n-fsjclnpqv11m.jkt1.sumopod.my.id/webhook/approval-handler-recruitment?action=approve&email={{ $json.Email }}&nama={{ $json.Nama }}&skills={{ $('If').item.json.ai_skills }}&summary={{ $('If').item.json.ai_summary }}&exp={{ $('If').item.json.ai_exp }}\" style=\"background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 15px; display: inline-block;\">\n    ✅ SETUJUI\n  </a>\n\n  <a href=\"https://n8n-fsjclnpqv11m.jkt1.sumopod.my.id/webhook/approval-handler-recruitment?action=reject&email={{ $json.Email }}&nama={{ $json.Nama }}\" style=\"background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">\n    ✖️ TOLAK\n  </a>\n</p>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        48
+      ],
+      "id": "b11ff93c-0e39-4dc9-99d9-47ff7f5b474b",
+      "name": "Perlu Persetujuan HR",
+      "webhookId": "be869ab0-65fc-465c-a0b7-0a5959ed6fb0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vEg9msV07F9U5vQE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Mohon Maaf Lamaran Kamu Telah Ditolak",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">\n\n  <p>Halo, <strong>{{ $json.Nama }}</strong></p>\n\n  <p>\n    Lamaran Kamu untuk tanggal <strong>{{ $json.Timestamp }}</strong> telah \n    <span style=\"color: #f44336; font-weight: bold;\">DITOLAK</span>.\n  </p>\n\n  <p>\n    Karena tidak memenuhi kriteria yang dibutuhkan oleh perusahaan, untuk evaluasi dari kami \n    Kamu bisa memperbaiki CV agar sesuai dengan kebutuhan perusahaan yang dilamar.\n  </p>\n\n  <p>Walaupun ditolak, Kamu tetap semangat ya.</p>\n\n  <br>\n\n  <p>Salam,<br>\n  <strong>HR Plusone</strong></p>\n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        112,
+        1040
+      ],
+      "id": "13f604a1-5139-48f7-84b1-033f8733a8d5",
+      "name": "Kandidat Karyawan Ditolak Oleh HR",
+      "webhookId": "d279bbd1-2642-47f0-94f2-d44c51313cbb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vEg9msV07F9U5vQE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Keputusan berhasil diterima. Terima kasih!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        336,
+        1040
+      ],
+      "id": "b045a317-b837-41b9-9155-57e060ab7b49",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Kamu adalah HR professional. Berdasarkan Hasil Rekomendasi AI sebelumnya pada kandidat, buatlah 5 pertanyaan interview yang personal dan spesifik sesuai pengalaman dan skill,  point-point pertanyaannya untuk mengulik pengetahun kandidat, serta bagaimana cara solve suatu masalah (bisa berupa case).\n\nData kandidat:\nEmail: {{ $json.Email }}\nNama: {{ $json.Nama }}\nSkills: {{ $json.Skills }}\nRingkasan: {{ $json.Summary }}\nPengalaman: {{ $json.Pengalaman }} tahun\n\nFormat output: daftar bernomor 1-5, dalam Bahasa Indonesia, langsung tanpa basa-basi generate quesion personal kandidat berdasarkan data kandidat.\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        96,
+        640
+      ],
+      "id": "f057539e-8d5b-4746-a358-2ee716857ad1",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        816
+      ],
+      "id": "a41d4572-caae-4d67-9a73-3ff34c56a31f",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "ap8yB7QyRdW9ec0y",
+          "name": "nfa-n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "elya23277ti@student.nurulfikri.ac.id",
+        "subject": "=Gernerate Question Kandidat {{ $('Append row in sheet').item.json.Nama }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">\n\n  <p>Halo,HR </p>\n\n  <br>\n\n  <p>\n    Berikut beberapa pertanyaan kepada kandidat <strong>{{ $('Append row in sheet').item.json.Nama }}</strong></strong> untuk sesi interview: \n  </p>\n\n  <br>\n\n  <p>\n  {{ $json.formatted_questions }}\n  </p>\n\n  \n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        640
+      ],
+      "id": "f6819462-c069-48d8-949f-1ddbc00023ba",
+      "name": "Kirim Hasil Pertanyaan Untuk Kandidat Pada HR",
+      "webhookId": "be869ab0-65fc-465c-a0b7-0a5959ed6fb0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vEg9msV07F9U5vQE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY",
+          "mode": "list",
+          "cachedResultName": "RekrutmenKaryawanPlusone (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1127750439,
+          "mode": "list",
+          "cachedResultName": "Kandidat Masuk Tahap Interview",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11pAx4KAzTYUfoyvwOp-pab8lMp-Rg_7SGlJmzZIEdfY/edit#gid=1127750439"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.query.email }}",
+            "Nama": "={{ $json.query.nama }}",
+            "Skills": "={{ $json.query.skills }}",
+            "Summary": "={{ $json.query.summary }}",
+            "Pengalaman": "={{ $json.query.exp }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nama",
+              "displayName": "Nama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pengalaman",
+              "displayName": "Pengalaman",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        640
+      ],
+      "id": "c067cd36-e2ed-4549-a101-d0568e94db34",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BXO6fMWaY6J0vbX4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nfor (let item of items) {\n  const rawText = item.json.text;\n  \n  const questions = rawText\n    .split(/\\d+\\.\\s+/)\n    .filter(q => q.trim().length > 0);\n  \n  let html = '<ul style=\"padding-left: 20px; line-height: 1.8; list-style-type: disc;\">';\n  \n  for (let q of questions) {\n    const clean = q.trim().replace(/\\n/g, ' ');\n    \n    const boldMatch = clean.match(/^(.+?\\?)\\s*(.*)/s);\n    \n    if (boldMatch) {\n      html += `<li style=\"margin-bottom: 16px;\">\n        <strong>${boldMatch[1]}</strong><br>\n        ${boldMatch[2]}\n      </li>`;\n    } else {\n      html += `<li style=\"margin-bottom: 16px;\">${clean}</li>`;\n    }\n  }\n  \n  html += '</ul>';\n  \n  item.json.formatted_questions = html;\n}\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        640
+      ],
+      "id": "72613895-5ead-4e42-bde0-e8eefcf4ee12",
+      "name": "Format Hasil Pertanyaan"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Append row in sheet').item.json.Email }}",
+        "subject": "Lanjut ke Tahap Interview",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">\n\n  <p>Halo, <strong>{{ $('Append row in sheet').item.json.Nama }}</strong></p>\n\n  <p>\n    Lamaran Kamu  \n    <span style=\"color: #43A047; font-weight: bold;\"> telah diterima dan LOLOS ke tahap inteview</span>.\n  </p>\n\n  <p>\n    Dimohon untuk mempersiapkan diri saat interview nanti, dan untuk tanggal serta tempat akan segera diberitahu via email.\n  </p>\n\n  <p>Semangat ya.</p>\n\n  <br>\n\n  <p>Salam,<br>\n  <strong>HR Plusone</strong></p>\n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        880
+      ],
+      "id": "c7d7f71b-2d00-4922-80f1-bc646c26c5f3",
+      "name": "Kirim Permberitahuan Interview Kandidat",
+      "webhookId": "d279bbd1-2642-47f0-94f2-d44c51313cbb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vEg9msV07F9U5vQE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Berhasil! dibuat pertanyaan personal kandidat, dan mengirimkan pesan ke kandidat",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        640
+      ],
+      "id": "1befa567-f8ba-41d9-a95a-2716d721c4b0",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Membersikah Noise Pada Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Data Kandidat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Kandidat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mengambil CV": {
+      "main": [
+        [
+          {
+            "node": "Download CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download CV": {
+      "main": [
+        [
+          {
+            "node": "Extract from CV PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from CV PDF": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Membersikah Noise Pada Output": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Kandidat": {
+      "main": [
+        [
+          {
+            "node": "Perlu Persetujuan HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Kandidat1": {
+      "main": [
+        [
+          {
+            "node": "Kandidat Gagal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If Hasil Persetujuan HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Kandidat2": {
+      "main": [
+        [
+          {
+            "node": "Kandidat Karyawan Ditolak Oleh HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Hasil Persetujuan HR": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Kandidat2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kandidat Karyawan Ditolak Oleh HR": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Format Hasil Pertanyaan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Hasil Pertanyaan": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Kirim Hasil Pertanyaan Untuk Kandidat Pada HR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Kirim Permberitahuan Interview Kandidat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "q1ISbY70QHAYaWtQ",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "78732019-e1b2-4d67-809f-65a92525ce02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3236409e09d36221387827be5c86b839c595fee6b06437e5ce673fb821d8f135"
+  },
+  "id": "Td60023oUuWB0Vjr",
+  "tags": []
+}
